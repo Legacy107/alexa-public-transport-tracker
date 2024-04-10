@@ -113,7 +113,7 @@ const GetPublicTransportDataIntent = {
     try {
       const { type, stop, direction } = attributesManager.getRequestAttributes();
 
-      const stops = await getStop(stop);
+      const stops = await getStop(stop.replace('street', ''));
       const directions = await Promise.all(stops.routes.map(route => getDirection(route.route_id, direction === 'to city')));
       const departures = (await getDeparturesForStop(
         stops.stop_id,

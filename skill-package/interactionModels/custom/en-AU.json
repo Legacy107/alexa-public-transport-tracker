@@ -67,12 +67,7 @@
             },
             {
               "name": "stop",
-              "type": "AMAZON.SearchQuery",
-              "samples": [
-                "Hawthorn",
-                "Richmond",
-                "Flinders Street"
-              ]
+              "type": "AMAZON.StreetName"
             },
             {
               "name": "direction",
