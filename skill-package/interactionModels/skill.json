@@ -1,0 +1,44 @@
+{
+  "manifest": {
+    "publishingInformation": {
+      "locales": {
+        "en-AU": {
+          "summary": "Victoria Public Transport Tracker is a skill that provides real-time train information for Melbourne, Australia. You can ask for the next train from your home station, or the next train to a specific station. You can also ask for the next train on a specific line. Victoria Public Transport Tracker is not affiliated with Public Transport Victoria.",
+          "examplePhrases": [
+            "next train at Richmond station from City",
+            "next train at Richmond station to City",
+            "next train at Richmond station",
+            "next train at Richmond"
+          ],
+          "keywords": [
+            "tracker",
+            "train",
+            "melbourne"
+          ],
+          "name": "Victoria Public Transport Tracker",
+          "description": "Victoria Public Transport Tracker is a skill that provides real-time train information for Melbourne, Australia. You can ask for the next train from your home station, or the next train to a specific station. You can also ask for the next train on a specific line. Victoria Public Transport Tracker is not affiliated with Public Transport Victoria."
+        }
+      },
+      "isAvailableWorldwide": true,
+      "testingInstructions": "Next train at Flinders Street",
+      "category": "EDUCATION_AND_REFERENCE",
+      "distributionCountries": []
+    },
+    "apis": {
+      "custom": {}
+    },
+    "manifestVersion": "1.0",
+    "permissions": [
+      {
+        "name": "alexa::devices:all:address:full:read"
+      }
+    ],
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "isExportCompliant": false,
+      "containsAds": false,
+      "isChildDirected": false,
+      "usesPersonalInfo": false
+    }
+  }
+}

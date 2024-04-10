@@ -1,0 +1,86 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "my train",
+      "types": [
+        {
+          "name": "type",
+          "values": [
+            {
+              "name": {
+                "value": "train"
+              }
+            },
+            {
+              "name": {
+                "value": "tram"
+              }
+            },
+            {
+              "name": {
+                "value": "bus"
+              }
+            }
+          ]
+        },
+        {
+          "name": "direction",
+          "values": [
+            {
+              "name": {
+                "value": "to city"
+              }
+            },
+            {
+              "name": {
+                "value": "from city"
+              }
+            }
+          ]
+        }
+      ],
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "GetPublicTransportDataIntent",
+          "samples": [
+            "next {type} at {stop} station {direction}",
+            "next {type} at {stop} station {direction}",
+            "next {type} at {stop} station",
+            "next {type} at {stop} {direction}"
+          ],
+          "slots": [
+            {
+              "name": "type",
+              "type": "type"
+            },
+            {
+              "name": "stop",
+              "type": "AMAZON.SearchQuery",
+              "samples": [
+                "Hawthorn",
+                "Richmond",
+                "Flinders Street"
+              ]
+            },
+            {
+              "name": "direction",
+              "type": "direction"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
