@@ -1,3 +1,3 @@
-const MyAlexaSkill = require('./lambda/custom/index');
+const MyAlexaSkill = require('./lambda/index');
 
 exports.handler = MyAlexaSkill.handler;
