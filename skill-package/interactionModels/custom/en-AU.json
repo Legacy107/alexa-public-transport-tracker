@@ -56,7 +56,6 @@
           "name": "GetPublicTransportDataIntent",
           "samples": [
             "next {type} at {stop} station {direction}",
-            "next {type} at {stop} station {direction}",
             "next {type} at {stop} station",
             "next {type} at {stop} {direction}"
           ],

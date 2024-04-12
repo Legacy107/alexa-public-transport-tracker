@@ -1,7 +1,7 @@
 const Alexa = require('ask-sdk-core');
 
 const SKILL_NAME = 'Victoria Public Transport Tracker';
-const FALLBACK_MESSAGE = `The ${SKILL_NAME} skill can\'t help you with that. It can help you get realtime data for Victorian public transport.  What can I help you with?`;
+const FALLBACK_MESSAGE = `The ${SKILL_NAME} skill can't help you with that. It can help you get realtime data for Victorian public transport.  What can I help you with?`;
 const FALLBACK_REPROMPT = 'What can I help you with?';
 
 const messages = {
@@ -20,6 +20,12 @@ const messages = {
 };
 
 const PERMISSIONS = ['read::alexa:device:all:address'];
+
+const melTimeZone = new Intl.DateTimeFormat("en-AU", { 
+    timeZone: "Australia/Melbourne",
+    hour: "numeric",
+    minute: "numeric",
+});
 
 const ptv = require('ptv-api');
 const devid = process.env.DEV_ID;
@@ -66,18 +72,15 @@ async function getDeparturesForStop(
     date_utc,
   });
   const departures = response.body.departures
-    .filter(departure => departure.estimated_departure_utc)
     .map(departure => {
-      const localTime = (new Date(departure.estimated_departure_utc)).toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit' });
-      return {
-        ...departure,
-        estimated_departure: localTime,
-        delay: Math.round((new Date(departure.estimated_departure_utc) - new Date(departure.scheduled_departure_utc)) / 1000 / 60),
-      };
+      const localTime = melTimeZone.format(new Date(departure.estimated_departure_utc || departure.scheduled_departure_utc));
+      departure.estimated_departure = localTime;
+      departure.fromNow = Math.round((new Date(departure.estimated_departure_utc || departure.scheduled_departure_utc) - new Date()) / 1000 / 60);
+      departure.delay = Math.round((new Date(departure.estimated_departure_utc || departure.scheduled_departure_utc) - new Date(departure.scheduled_departure_utc)) / 1000 / 60);
+      return departure;
     })
     .filter(departure => directionIds.length === 0 || directionIds.includes(departure.direction_id))
-    .sort((a, b) => new Date(a.estimated_departure_utc) - new Date(b.estimated_departure_utc))
-  ;
+    .sort((a, b) => new Date(a.estimated_departure_utc || a.scheduled_departure_utc) - new Date(b.estimated_departure_utc || b.scheduled_departure_utc));
 
   return departures;
 }
@@ -111,24 +114,28 @@ const GetPublicTransportDataIntent = {
     const { requestEnvelope, attributesManager, serviceClientFactory, responseBuilder } = handlerInput;
 
     try {
-      const { type, stop, direction } = attributesManager.getRequestAttributes();
+      let { type, stop, direction } = requestEnvelope.request.intent.slots;
+      type = type.value || TYPES.train;
+      stop = stop.value;
+      direction = direction.value || 'from city';
 
       const stops = await getStop(stop.replace('street', ''));
       const directions = await Promise.all(stops.routes.map(route => getDirection(route.route_id, direction === 'to city')));
+      
       const departures = (await getDeparturesForStop(
         stops.stop_id,
-        TYPES[type] ?? TYPES.train,
+        TYPES[type],
         2,
         new Date().toISOString(),
         directions.map(direction => direction.direction_id),
-      )).map(departure => ({
-        ...departure,
-        route_name: stops.routes.find(route => route.route_id === departure.route_id).route_name,
-        direction_name: directions.find(direction => direction.direction_id === departure.direction_id).direction_name,
-      }));
+      )).map(departure => {
+        departure.route_name = stops.routes.find(route => route.route_id === departure.route_id).route_name;
+        departure.direction_name = directions.find(direction => direction.direction_id === departure.direction_id).direction_name
+        return departure;
+      });
       const departure = departures[0];
 
-      return responseBuilder.speak(`Next ${type} ${direction} is the ${departure.route_name} at ${departure.estimated_departure}`).getResponse();
+      return responseBuilder.speak(`Next ${type} ${direction} is the ${departure.route_name}<break strength="weak"/><prosody rate="slow"> ${departure.fromNow} minute${departure.fromNow !== 1 ? 's' : ''} </prosody> from now <break strength="weak"/> at <prosody rate="slow"> ${departure.estimated_departure} </prosody>`).getResponse();
     } catch (error) {
       if (error.name !== 'ServiceError') {
         const response = responseBuilder.speak(messages.ERROR).getResponse();
